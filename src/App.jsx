@@ -171,7 +171,7 @@ function SongGrid({songs}){
  return <div className="song-database-grid">{songs.map(song=><article className="song song-record" key={song.id}>
    <div className="song-record-top"><small>{song.artist}</small>{song.year&&<span>{song.year}</span>}</div>
    <b>{song.title}</b>
-   {song.credits&&<p>{song.credits}</p>}
+   {song.credits&&<p>{song.credits}</p>}{song.audio_url&&<audio className="song-audio" controls preload="none" src={song.audio_url}/>}
    {song.video_embed_url?<div className="song-video"><iframe src={song.video_embed_url} title={song.title+" · "+song.artist} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen/></div>:<span className="song-no-video">VIDEO NOT LINKED YET</span>}
  </article>)}</div>
 }
