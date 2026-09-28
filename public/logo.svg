@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 150" role="img" aria-labelledby="title desc">
+  <title id="title">ICHKOMME</title>
+  <desc id="desc">ICHKOMME artist database logo</desc>
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset=".38" stop-color="#ff70bd"/>
+      <stop offset=".72" stop-color="#9d78ff"/>
+      <stop offset="1" stop-color="#54e5ff"/>
+    </linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <path d="M30 116C120 18 225 17 320 82S430 128 494 40" fill="none" stroke="url(#g)" stroke-width="5" stroke-linecap="round" opacity=".6" filter="url(#glow)"/>
+  <text x="24" y="88" font-family="Georgia,serif" font-size="66" font-style="italic" font-weight="700" letter-spacing="-3" fill="url(#g)">ICHKOMME</text>
+  <circle cx="466" cy="96" r="7" fill="#54e5ff" filter="url(#glow)"/>
+</svg>
