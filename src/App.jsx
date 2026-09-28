@@ -65,8 +65,19 @@ function flagForCountry(country){
 
 function App(){
  const [artist,setArtist]=useState("all"),[year,setYear]=useState("all"),[query,setQuery]=useState(""),[view,setView]=useState("overview");
- const [remoteArtists,setRemoteArtists]=useState([]),[remoteEvents,setRemoteEvents]=useState([]),[dbError,setDbError]=useState(""),[dbReady,setDbReady]=useState(false);
+ const [remoteArtists,setRemoteArtists]=useState([]),[remoteEvents,setRemoteEvents]=useState([]),[songs,setSongs]=useState([]),[dbError,setDbError]=useState(""),[dbReady,setDbReady]=useState(false);
  const [showAdd,setShowAdd]=useState(false),[notice,setNotice]=useState(""),[submitting,setSubmitting]=useState(false);
+
+ const loadSongs=async()=>{
+   try{
+     const r=await fetch("/api/songs");
+     const data=await r.json();
+     if(!r.ok)throw new Error(data.error||"Song API error");
+     setSongs(data.songs||[]);
+   }catch(e){
+     setSongs([]);
+   }
+ };
 
  const loadCatalog=async()=>{
    setDbError("");
@@ -74,7 +85,7 @@ function App(){
      setRemoteArtists(data.artists||[]);setRemoteEvents(data.events||[]);setDbReady(true);
    }catch(e){setDbReady(false);setDbError(e.message||"Database connection failed");}
  };
- useEffect(()=>{loadCatalog();},[]);
+ useEffect(()=>{loadCatalog();loadSongs();},[]);
  const catalog=useMemo(()=>remoteArtists.map(enrichArtist),[remoteArtists]),eventCatalog=remoteEvents;
  const selected=catalog.find(a=>String(a.id)===String(artist));
  const filtered=useMemo(()=>eventCatalog.filter(e=>
@@ -83,6 +94,12 @@ function App(){
    [e.title,e.artist,e.country,e.venue,e.type].filter(Boolean).join(" ").toLowerCase().includes(query.toLowerCase())
  ),[eventCatalog,artist,year,query,selected]);
  const allCountries=[...new Set(catalog.map(a=>a.country).filter(Boolean))];
+ const filteredSongs=useMemo(()=>songs.filter(s=>
+   (artist==="all"||String(s.artist||"").toLowerCase()===String(selected?.name||"").toLowerCase()) &&
+   (year==="all"||String(s.year||"")===year) &&
+   [s.title,s.artist,s.year,s.credits].filter(Boolean).join(" ").toLowerCase().includes(query.toLowerCase())
+ ),[songs,artist,year,query,selected]);
+ const artistSongs=useMemo(()=>songs.filter(s=>String(s.artist||"").toLowerCase()===String(selected?.name||"").toLowerCase()),[songs,selected]);
 
  async function submitArtist(form){
    setSubmitting(true);setNotice("");
@@ -96,7 +113,7 @@ function App(){
  return <div className="shell">
   <header>
    <a className="brand" href="#" onClick={e=>{e.preventDefault();setView("overview");setArtist("all")}}><img src="/logo.svg" alt="ICHKOMME"/><span>ARTIST DATABASE</span></a>
-   <nav>{[["overview","HOME"],["artists","ARTISTS"],["timeline","TIMELINE"],["countries","COUNTRIES"]].map(([key,label])=><button key={key} className={view===key?"active":""} onClick={()=>setView(key)}>{label}</button>)}</nav>
+   <nav>{[["overview","HOME"],["artists","ARTISTS"],["songs","SONGS"],["timeline","TIMELINE"],["countries","COUNTRIES"]].map(([key,label])=><button key={key} className={view===key?"active":""} onClick={()=>setView(key)}>{label}</button>)}</nav>
    <button className="add-top" onClick={()=>setShowAdd(true)}>＋ ADD ARTIST</button>
    <div className="status"><i/>{dbReady?"D1 CONNECTED":"D1 OFFLINE"}</div>
   </header>
@@ -110,7 +127,9 @@ function App(){
 
    {view==="overview"&&<><section className="section-head"><div><p className="eyebrow">FEATURED DIRECTORY</p><h2>Artists in the database</h2></div><button className="link-button" onClick={()=>setView("artists")}>VIEW ALL ↗</button></section><section className="artist-grid">{catalog.map(a=><ArtistCard key={a.id} artist={a} onClick={()=>{setArtist(a.id);setView("artists")}}/>)}</section><section className="section-head"><div><p className="eyebrow">DECADE LOG</p><h2>Recent activity</h2></div><span>{filtered.length} events</span></section><EventList events={filtered}/></>}
 
-   {view==="artists"&&<><section className="section-head"><div><p className="eyebrow">{selected?"ARTIST PROFILE":"ARTIST DIRECTORY"}</p><h2>{selected?selected.name:"Artists"}</h2></div><button className="link-button" onClick={()=>setShowAdd(true)}>＋ ADD ARTIST</button></section>{selected?<ArtistProfile artist={selected}/>:<section className="artist-grid">{catalog.map(a=><ArtistCard key={a.id} artist={a} onClick={()=>setArtist(a.id)}/>)}</section>}{selected&&<><section className="section-head"><div><p className="eyebrow">SONGBOOK</p><h2>Known songs</h2></div></section><section className="song-grid">{selected.songs.map((s,i)=><div className="song" key={s+i}><small>{selected.name}</small><b>{s}</b><span>{selected.flag} {selected.country}</span></div>)}</section><section className="section-head"><div><p className="eyebrow">APPEARANCES</p><h2>Recorded activity</h2></div></section><EventList events={filtered}/></>}</>}
+   {view==="artists"&&<><section className="section-head"><div><p className="eyebrow">{selected?"ARTIST PROFILE":"ARTIST DIRECTORY"}</p><h2>{selected?selected.name:"Artists"}</h2></div><button className="link-button" onClick={()=>setShowAdd(true)}>＋ ADD ARTIST</button></section>{selected?<ArtistProfile artist={selected}/>:<section className="artist-grid">{catalog.map(a=><ArtistCard key={a.id} artist={a} onClick={()=>setArtist(a.id)}/>)}</section>}{selected&&<><section className="section-head"><div><p className="eyebrow">SONGBOOK</p><h2>Known songs</h2></div></section><section className="song-grid">{artistSongs.length?<SongGrid songs={artistSongs}/>:selected.songs.map((s,i)=><div className="song" key={s+i}><small>{selected.name}</small><b>{s}</b><span>{selected.flag} {selected.country}</span></div>)}</section><section className="section-head"><div><p className="eyebrow">APPEARANCES</p><h2>Recorded activity</h2></div></section><EventList events={filtered}/></>}</>}
+
+   {view==="songs"&&<><section className="section-head"><div><p className="eyebrow">SONG DATABASE · D1 SONGSAVE</p><h2>All songs</h2></div><span>{filteredSongs.length} songs</span></section><SongGrid songs={filteredSongs}/></>}
 
    {view==="timeline"&&<><section className="section-head"><div><p className="eyebrow">2020 → 2029</p><h2>The decade timeline</h2></div><span>{filtered.length} events</span></section><EventList events={filtered}/></>}
    {view==="countries"&&<><section className="section-head"><div><p className="eyebrow">GEOGRAPHY</p><h2>Countries represented</h2></div></section><section className="countries">{allCountries.map(c=><div className="country" key={c}><span>{flagForCountry(c)}</span><b>{c}</b><small>{catalog.filter(a=>a.country===c).length} artists in the directory</small></div>)}</section></>}
@@ -145,6 +164,16 @@ function ArtistCard({artist,onClick}){
 
 function ArtistProfile({artist}){
  return <section className="profile"><div className="profile-photo">{artist.photo?<img src={artist.photo} alt={artist.name}/>:<div className="portrait">{artist.name.split(" ").map(x=>x[0]).join("")}</div>}</div><div className="profile-info"><p className="eyebrow">{artist.flag} {artist.country} · {artist.eurovision!=="—"?"EUROVISION "+artist.eurovision:"MUSIC ARTIST"}</p><h2>{artist.name}</h2><p className="profile-bio">{artist.bio}</p><div className="profile-facts"><span><b>{artist.songs.length}</b> songs</span><span><b>{artist.tags.length}</b> tags</span><span><b>{artist.community?"COMMUNITY":"FEATURED"}</b> profile</span></div>{artist.photoCredit&&<small className="credit">Photo: {artist.photoCredit}</small>}</div></section>
+}
+
+function SongGrid({songs}){
+ if(!songs.length)return <div className="empty">No matching songs in the database yet.</div>;
+ return <div className="song-database-grid">{songs.map(song=><article className="song song-record" key={song.id}>
+   <div className="song-record-top"><small>{song.artist}</small>{song.year&&<span>{song.year}</span>}</div>
+   <b>{song.title}</b>
+   {song.credits&&<p>{song.credits}</p>}
+   {song.video_embed_url?<div className="song-video"><iframe src={song.video_embed_url} title={song.title+" · "+song.artist} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen/></div>:<span className="song-no-video">VIDEO NOT LINKED YET</span>}
+ </article>)}</div>
 }
 
 function EventList({events}){
