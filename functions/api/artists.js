@@ -12,6 +12,7 @@ export async function onRequestGet({ env, request }) {
 
   try {
     await ensureCommunityTable(artistDb);
+    await seedFeaturedArtists(artistDb);
     const artistTables = await artistDb.prepare(
       "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
     ).all();
@@ -206,4 +207,20 @@ function extractYear(value) {
 }
 function escapeIdent(value) {
   return String(value).replaceAll('"', '""');
+}
+
+async function seedFeaturedArtists(db) {
+  const featured = [
+    ["erika-vikman", "Erika Vikman", "Finland", "https://commons.wikimedia.org/wiki/Special:FilePath/Erika%20Vikman%20at%20ESC2025%20for%20Finland%2042.jpg?width=900", "Finnish pop artist who represented Finland at Eurovision 2025 with ICH KOMME.", "2025", "ICH KOMME, Cicciolina, Syntisten pöytä, Ruoska", "Eurovision, Finland, Pop"],
+    ["indila", "Indila", "France", "https://commons.wikimedia.org/wiki/Special:FilePath/Indila%20-%20EBBA%202015.jpg?width=900", "French singer and songwriter known for her francophone pop sound.", "", "Dernière danse, Tourner dans le vide, Love Story, Ainsi bas la vida", "France, Pop, Francophone"],
+    ["antigoni", "Antigoni", "Cyprus", "", "Cypriot-British singer and songwriter who represented Cyprus at Eurovision 2026 with JALLA.", "2026", "JALLA, Yala, Dímelo, Stuck", "Eurovision, Cyprus, Pop"],
+    ["marina-satti", "Marina Satti", "Greece", "https://commons.wikimedia.org/wiki/Special:FilePath/Marina%20Satti.jpg?width=900", "Greek singer, songwriter and producer whose music blends Greek, Balkan and urban influences.", "2024", "ZARI, MANTISSA, TUCUTUM, LALALALA", "Eurovision, Greece, Greek pop"],
+    ["kaj", "KAJ", "Sweden / Finland", "", "Finnish-Swedish comedy music group that represented Sweden at Eurovision 2025 with Bara bada bastu.", "2025", "Bara bada bastu, Freestyler, Bonfire", "Eurovision, Sweden, Finland, Humor"]
+  ];
+
+  const statement = db.prepare(
+    "INSERT OR IGNORE INTO custom_artists (id,name,country,photo,bio,eurovision,songs,tags,created_at) VALUES (?,?,?,?,?,?,?,?,datetime('now'))"
+  );
+
+  await db.batch(featured.map(row => statement.bind(...row)));
 }
