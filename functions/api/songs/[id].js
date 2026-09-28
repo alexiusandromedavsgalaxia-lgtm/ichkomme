@@ -2,7 +2,7 @@ export async function onRequestGet({ env, params }) {
   const db = env.video;
   if (!db) return Response.json({ error: "D1 binding video is required" }, { status: 500 });
   const id = String(params.id || "");
-  if (!/^[0-9a-f-]{20,80}$/i.test(id)) return Response.json({ error: "Invalid song id" }, { status: 400 });
+  if (!/^[A-Za-z0-9_-]{1,80}$/.test(id)) return Response.json({ error: "Invalid song id" }, { status: 400 });
 
   try {
     const row = await db.prepare("SELECT id,title,artist,year,audio_url,video_url,credits,created_at FROM songs WHERE id = ? LIMIT 1").bind(id).first();
