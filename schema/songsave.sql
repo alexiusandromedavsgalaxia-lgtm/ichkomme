@@ -3,11 +3,9 @@ CREATE TABLE IF NOT EXISTS songs (
   title TEXT NOT NULL,
   artist TEXT NOT NULL,
   year TEXT,
-  source_url TEXT NOT NULL UNIQUE,
-  object_key TEXT NOT NULL UNIQUE,
-  mime_type TEXT,
-  size_bytes INTEGER,
-  license_note TEXT NOT NULL,
+  audio_url TEXT,
+  video_url TEXT,
+  credits TEXT,
   created_at TEXT NOT NULL
 );
 
