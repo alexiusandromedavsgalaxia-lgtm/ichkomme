@@ -136,7 +136,9 @@ function App(){
   </main>
   <footer><span>ICHKOMME / ARTIST DATABASE</span><span>Community profiles · decade tracking · music history</span></footer>
 
-  {selectedSong&&<SongModal song={selectedSong} onClose={()=>setSelectedSong(null)}/>}\n\n  {showAdd&&<div className="modal-backdrop" onMouseDown={e=>e.target===e.currentTarget&&setShowAdd(false)}><form className="modal" onSubmit={e=>{e.preventDefault();submitArtist(e.currentTarget)}}>
+  {selectedSong&&<SongModal song={selectedSong} onClose={()=>setSelectedSong(null)}/>}
+
+  {showAdd&&<div className="modal-backdrop" onMouseDown={e=>e.target===e.currentTarget&&setShowAdd(false)}><form className="modal" onSubmit={e=>{e.preventDefault();submitArtist(e.currentTarget)}}>
     <div className="modal-head"><div><p className="eyebrow">COMMUNITY DIRECTORY</p><h2>Add an artist</h2></div><button type="button" className="close" onClick={()=>setShowAdd(false)}>×</button></div>
     <p className="modal-copy">Add a singer or group to the shared D1 directory. The profile will be visible to everyone using the site.</p>
     <div className="form-grid">
