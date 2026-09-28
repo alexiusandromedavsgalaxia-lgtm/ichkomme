@@ -38,9 +38,7 @@ export async function onRequestGet({ env, request }) {
     });
 
     const customRows = await artistDb.prepare("SELECT * FROM custom_artists ORDER BY created_at DESC LIMIT 1000").all();
-    const normalizedArtists = artists.map(normalizeArtist).filter(a => a.name !== "Unknown artist");
-    normalizedArtists.push(...(customRows.results || []).map(normalizeArtist));
-    const normalizedEvents = events.map(normalizeEvent).filter(e => e.title !== "Untitled event");
+    const normalizedArtists = dedupeArtists([\n      ...artists.map(normalizeArtist).filter(a => a.name !== "Unknown artist"),\n      ...(customRows.results || []).map(normalizeArtist)\n    ]);\n    const normalizedEvents = events.map(normalizeEvent).filter(e => e.title !== "Untitled event");
 
     let filteredEvents = normalizedEvents;
     if (artistId) filteredEvents = filteredEvents.filter(e =>
@@ -185,6 +183,46 @@ function normalizeArtist(row) {
     website: pick(row, ["website", "official_site", "url"]) || "",
     community: String(pick(row, ["community", "source"])) === "true" || String(pick(row, ["source"])) === "community"
   };
+}
+
+function dedupeArtists(list) {
+  const byName = new Map();
+
+  for (const artist of list) {
+    const key = normalizeArtistName(artist.name);
+    if (!key) continue;
+
+    const existing = byName.get(key);
+    if (!existing) {
+      byName.set(key, artist);
+      continue;
+    }
+
+    const merged = { ...existing };
+    for (const field of ["id","country","flag","photo","bio","eurovision","website"]) {
+      if (!merged[field] && artist[field]) merged[field] = artist[field];
+    }
+
+    merged.songs = uniqueStrings([...(existing.songs || []), ...(artist.songs || [])]);
+    merged.tags = uniqueStrings([...(existing.tags || []), ...(artist.tags || [])]);
+    merged.community = Boolean(existing.community || artist.community);
+    byName.set(key, merged);
+  }
+
+  return [...byName.values()];
+}
+
+function normalizeArtistName(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function uniqueStrings(values) {
+  return [...new Set(values.map(value => String(value || "").trim()).filter(Boolean))];
 }
 
 function normalizeEvent(row) {
