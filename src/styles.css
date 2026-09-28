@@ -158,3 +158,15 @@ footer{padding:25px 4vw}
 @media(max-width:1050px){.artist-grid{grid-template-columns:repeat(3,1fr)}.profile{grid-template-columns:280px 1fr}.profile-photo{height:400px}.hero{min-height:430px}.orbit{width:250px;height:250px}}
 @media(max-width:800px){header{padding:0 16px;gap:12px}.brand{width:150px}.brand img{width:130px}nav{overflow:auto}.add-top{display:none}.status{display:none}.artist-grid{grid-template-columns:repeat(2,1fr)}.controls{grid-template-columns:1fr 1fr}.search-wrap{grid-column:1/-1}.profile{grid-template-columns:1fr;gap:22px}.profile-photo{height:430px}.song-grid,.countries{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){main{padding:25px 16px 75px}.hero{display:block;padding:35px 0 50px}.hero h1{font-size:64px}.hero .lead{font-size:13px}.orbit{margin:38px auto 0;width:190px;height:190px}.stats{grid-template-columns:1fr 1fr}.stats div:nth-child(2){border-right:0}.stats div{padding:17px 13px}.controls{grid-template-columns:1fr}.search-wrap{grid-column:auto}.artist-grid,.song-grid,.countries{grid-template-columns:1fr}.artist{min-height:420px}.artist-photo{height:255px}.profile-photo{height:360px}.profile-info h2{font-size:53px}.form-grid{grid-template-columns:1fr}.form-grid .wide{grid-column:auto}.modal{padding:20px}.event{grid-template-columns:48px 75px 1fr;gap:9px;padding:16px 10px}.event>span:nth-of-type(2),.event>span:last-child{display:none}footer{display:block;line-height:2}}
+
+.song-database-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
+.song-record{min-height:210px;gap:12px;overflow:hidden}
+.song-record-top{display:flex;justify-content:space-between;align-items:center;color:#8f8795}
+.song-record-top span{font-size:9px;letter-spacing:.12em;border:1px solid #ffffff18;border-radius:99px;padding:4px 7px}
+.song-record b{font:700 20px "Space Grotesk";letter-spacing:-.02em}
+.song-record p{margin:0;color:#8f8795;font-size:10px;line-height:1.5}
+.song-video{margin:4px -18px -18px;aspect-ratio:16/9;background:#05030a}
+.song-video iframe{display:block;width:100%;height:100%;border:0}
+.song-no-video{color:#6f6875;font-size:8px;letter-spacing:.14em}
+@media(max-width:900px){.song-database-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.song-database-grid{grid-template-columns:1fr}}
