@@ -36,7 +36,9 @@ export async function onRequestGet({ env, request }) {
       venueCandidates: ["venue", "location", "place"],
     });
 
+    const customRows = await artistDb.prepare("SELECT * FROM custom_artists ORDER BY created_at DESC LIMIT 1000").all();
     const normalizedArtists = artists.map(normalizeArtist).filter(a => a.name !== "Unknown artist");
+    normalizedArtists.push(...(customRows.results || []).map(normalizeArtist));
     const normalizedEvents = events.map(normalizeEvent).filter(e => e.title !== "Untitled event");
 
     let filteredEvents = normalizedEvents;
