@@ -171,6 +171,7 @@ function normalizeArtist(row) {
   const songsValue = pick(row, ["songs", "song_list", "tracks", "top_songs"]);
   const tagsValue = pick(row, ["tags", "genres", "labels"]);
   return {
+    ...row,
     id: pick(row, ["id", "artist_id"]),
     name: pick(row, ["name", "artist_name", "display_name"]) || "Unknown artist",
     country: pick(row, ["country", "country_name"]) || "",
@@ -181,8 +182,7 @@ function normalizeArtist(row) {
     songs: splitList(songsValue),
     tags: splitList(tagsValue),
     website: pick(row, ["website", "official_site", "url"]) || "",
-    community: String(pick(row, ["community", "source"])) === "true" || String(pick(row, ["source"])) === "community",
-    ...row
+    community: String(pick(row, ["community", "source"])) === "true" || String(pick(row, ["source"])) === "community"
   };
 }
 
