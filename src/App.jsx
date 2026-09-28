@@ -66,7 +66,7 @@ function flagForCountry(country){
 function App(){
  const [artist,setArtist]=useState("all"),[year,setYear]=useState("all"),[query,setQuery]=useState(""),[view,setView]=useState("overview");
  const [remoteArtists,setRemoteArtists]=useState([]),[remoteEvents,setRemoteEvents]=useState([]),[songs,setSongs]=useState([]),[dbError,setDbError]=useState(""),[dbReady,setDbReady]=useState(false);
- const [showAdd,setShowAdd]=useState(false),[notice,setNotice]=useState(""),[submitting,setSubmitting]=useState(false);
+ const [showAdd,setShowAdd]=useState(false),[notice,setNotice]=useState(""),[submitting,setSubmitting]=useState(false),[selectedSong,setSelectedSong]=useState(null);
 
  const loadSongs=async()=>{
    try{
@@ -127,16 +127,16 @@ function App(){
 
    {view==="overview"&&<><section className="section-head"><div><p className="eyebrow">FEATURED DIRECTORY</p><h2>Artists in the database</h2></div><button className="link-button" onClick={()=>setView("artists")}>VIEW ALL ↗</button></section><section className="artist-grid">{catalog.map(a=><ArtistCard key={a.id} artist={a} onClick={()=>{setArtist(a.id);setView("artists")}}/>)}</section><section className="section-head"><div><p className="eyebrow">DECADE LOG</p><h2>Recent activity</h2></div><span>{filtered.length} events</span></section><EventList events={filtered}/></>}
 
-   {view==="artists"&&<><section className="section-head"><div><p className="eyebrow">{selected?"ARTIST PROFILE":"ARTIST DIRECTORY"}</p><h2>{selected?selected.name:"Artists"}</h2></div><button className="link-button" onClick={()=>setShowAdd(true)}>＋ ADD ARTIST</button></section>{selected?<ArtistProfile artist={selected}/>:<section className="artist-grid">{catalog.map(a=><ArtistCard key={a.id} artist={a} onClick={()=>setArtist(a.id)}/>)}</section>}{selected&&<><section className="section-head"><div><p className="eyebrow">SONGBOOK</p><h2>Known songs</h2></div></section><section className="song-grid">{artistSongs.length?<SongGrid songs={artistSongs}/>:selected.songs.map((s,i)=><div className="song" key={s+i}><small>{selected.name}</small><b>{s}</b><span>{selected.flag} {selected.country}</span></div>)}</section><section className="section-head"><div><p className="eyebrow">APPEARANCES</p><h2>Recorded activity</h2></div></section><EventList events={filtered}/></>}</>}
+   {view==="artists"&&<><section className="section-head"><div><p className="eyebrow">{selected?"ARTIST PROFILE":"ARTIST DIRECTORY"}</p><h2>{selected?selected.name:"Artists"}</h2></div><button className="link-button" onClick={()=>setShowAdd(true)}>＋ ADD ARTIST</button></section>{selected?<ArtistProfile artist={selected}/>:<section className="artist-grid">{catalog.map(a=><ArtistCard key={a.id} artist={a} onClick={()=>setArtist(a.id)}/>)}</section>}{selected&&<><section className="section-head"><div><p className="eyebrow">SONGBOOK</p><h2>Known songs</h2></div></section><section className="song-grid">{artistSongs.length?<SongGrid songs={artistSongs} onSelect={setSelectedSong}/>:selected.songs.map((s,i)=><div className="song" key={s+i}><small>{selected.name}</small><b>{s}</b><span>{selected.flag} {selected.country}</span></div>)}</section><section className="section-head"><div><p className="eyebrow">APPEARANCES</p><h2>Recorded activity</h2></div></section><EventList events={filtered}/></>}</>}
 
-   {view==="songs"&&<><section className="section-head"><div><p className="eyebrow">SONG DATABASE · D1 SONGSAVE</p><h2>All songs</h2></div><span>{filteredSongs.length} songs</span></section><SongGrid songs={filteredSongs}/></>}
+   {view==="songs"&&<><section className="section-head"><div><p className="eyebrow">SONG DATABASE · D1 SONGSAVE</p><h2>All songs</h2></div><span>{filteredSongs.length} songs</span></section><SongGrid songs={filteredSongs} onSelect={setSelectedSong}/></>}
 
    {view==="timeline"&&<><section className="section-head"><div><p className="eyebrow">2020 → 2029</p><h2>The decade timeline</h2></div><span>{filtered.length} events</span></section><EventList events={filtered}/></>}
    {view==="countries"&&<><section className="section-head"><div><p className="eyebrow">GEOGRAPHY</p><h2>Countries represented</h2></div></section><section className="countries">{allCountries.map(c=><div className="country" key={c}><span>{flagForCountry(c)}</span><b>{c}</b><small>{catalog.filter(a=>a.country===c).length} artists in the directory</small></div>)}</section></>}
   </main>
   <footer><span>ICHKOMME / ARTIST DATABASE</span><span>Community profiles · decade tracking · music history</span></footer>
 
-  {showAdd&&<div className="modal-backdrop" onMouseDown={e=>e.target===e.currentTarget&&setShowAdd(false)}><form className="modal" onSubmit={e=>{e.preventDefault();submitArtist(e.currentTarget)}}>
+  {selectedSong&&<SongModal song={selectedSong} onClose={()=>setSelectedSong(null)}/>}\n\n  {showAdd&&<div className="modal-backdrop" onMouseDown={e=>e.target===e.currentTarget&&setShowAdd(false)}><form className="modal" onSubmit={e=>{e.preventDefault();submitArtist(e.currentTarget)}}>
     <div className="modal-head"><div><p className="eyebrow">COMMUNITY DIRECTORY</p><h2>Add an artist</h2></div><button type="button" className="close" onClick={()=>setShowAdd(false)}>×</button></div>
     <p className="modal-copy">Add a singer or group to the shared D1 directory. The profile will be visible to everyone using the site.</p>
     <div className="form-grid">
@@ -166,14 +166,26 @@ function ArtistProfile({artist}){
  return <section className="profile"><div className="profile-photo">{artist.photo?<img src={artist.photo} alt={artist.name}/>:<div className="portrait">{artist.name.split(" ").map(x=>x[0]).join("")}</div>}</div><div className="profile-info"><p className="eyebrow">{artist.flag} {artist.country} · {artist.eurovision!=="—"?"EUROVISION "+artist.eurovision:"MUSIC ARTIST"}</p><h2>{artist.name}</h2><p className="profile-bio">{artist.bio}</p><div className="profile-facts"><span><b>{artist.songs.length}</b> songs</span><span><b>{artist.tags.length}</b> tags</span><span><b>{artist.community?"COMMUNITY":"FEATURED"}</b> profile</span></div>{artist.photoCredit&&<small className="credit">Photo: {artist.photoCredit}</small>}</div></section>
 }
 
-function SongGrid({songs}){
+function SongGrid({songs,onSelect}){
  if(!songs.length)return <div className="empty">No matching songs in the database yet.</div>;
- return <div className="song-database-grid">{songs.map(song=><article className="song song-record" key={song.id}>
+ return <div className="song-database-grid">{songs.map(song=><article className="song song-record song-clickable" key={song.id} tabIndex="0" role="button" onClick={()=>onSelect(song)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" ")onSelect(song)}}>
    <div className="song-record-top"><small>{song.artist}</small>{song.year&&<span>{song.year}</span>}</div>
    <b>{song.title}</b>
-   {song.credits&&<p>{song.credits}</p>}{song.audio_url&&<audio className="song-audio" controls preload="none" src={song.audio_url}/>}
-   {song.video_embed_url?<div className="song-video"><iframe src={song.video_embed_url} title={song.title+" · "+song.artist} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen/></div>:<span className="song-no-video">VIDEO NOT LINKED YET</span>}
+   {song.credits&&<p>{song.credits}</p>}
+   <span className="song-open">OPEN SONG ↗</span>
  </article>)}</div>
+}
+
+function SongModal({song,onClose}){
+ return <div className="modal-backdrop" onMouseDown={e=>e.target===e.currentTarget&&onClose()}>
+   <section className="modal song-modal">
+     <div className="modal-head"><div><p className="eyebrow">SONG</p><h2>{song.title}</h2><p className="modal-copy">{song.artist}{song.year?" · "+song.year:""}</p></div><button type="button" className="close" onClick={onClose}>×</button></div>
+     {song.credits&&<p className="modal-copy">{song.credits}</p>}
+     {song.audio_url&&<audio className="song-audio" controls preload="none" src={song.audio_url}/>}
+     {song.video_embed_url?<div className="song-modal-video"><iframe src={song.video_embed_url} title={song.title+" · "+song.artist} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen/></div>:<div className="song-no-video">VIDEO NOT LINKED YET</div>}
+     {!song.audio_url&&!song.video_embed_url&&<div className="empty">This song has been added to the database, but no playable media is linked yet.</div>}
+   </section>
+ </div>
 }
 
 function EventList({events}){
