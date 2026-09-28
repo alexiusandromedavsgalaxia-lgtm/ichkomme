@@ -27,7 +27,7 @@ export async function onRequestGet({ env, request }) {
       "SELECT id,title,artist,year,source_url,object_key,mime_type,size_bytes,created_at FROM songs ORDER BY created_at DESC LIMIT 500"
     ).all();
 
-    let songs = rows.results || [];
+    let songs = (rows.results || []).map(song => ({ ...song, stream_url: `/api/songs/${song.id}` }));
     if (artist) songs = songs.filter(song => String(song.artist || "").toLowerCase() === artist.toLowerCase());
     if (q) {
       songs = songs.filter(song =>
