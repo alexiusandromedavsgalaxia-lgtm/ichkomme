@@ -3,9 +3,9 @@ import React, {useMemo, useState} from "react";
 const artists = [
  {id:"erika", name:"Erika Vikman", country:"Finland", flag:"🇫🇮", eurovision:"2025", color:"pink", songs:["ICH KOMME","Cicciolina","Syntisten pöytä","Ruoska"], tags:["Eurovision","Finland","Pop"]},
  {id:"indila", name:"Indila", country:"France", flag:"🇫🇷", eurovision:"—", color:"violet", songs:"Dernière danse;Tourner dans le vide;Love Story;Ainsi bas la vida".split(";"), tags:["France","Pop","Francophone"]},
- {id:"antigoni", name:"Antigoni", country:"Cyprus", flag:"🇨🇾", eurovision:"2026", color:"gold", songs:["Yala","Dímelo","Stuck"], tags:["Eurovision","Cyprus","Pop"]},
+ {id:"antigoni", name:"Antigoni", country:"Cyprus", flag:"🇨🇾", eurovision:"2026", color:"gold", songs:["JALLA","Yala","Dímelo","Stuck"], tags:["Eurovision","Cyprus","Pop"]},
  {id:"marina", name:"Marina Satti", country:"Greece", flag:"🇬🇷", eurovision:"2024", color:"green", songs:["ZARI","MANTISSA","TUCUTUM","LALALALA"], tags:["Eurovision","Greece","Greek pop"]},
- {id:"kaj", name:"KAJ", country:"Finland", flag:"🇫🇮", eurovision:"2025", color:"blue", songs:["Bara bada bastu","Freestyler","Bonfire"], tags:["Eurovision","Finland","Humor"]},
+ {id:"kaj", name:"KAJ", country:"Finland / Sweden", flag:"🇸🇪", eurovision:"2025", color:"blue", songs:["Bara bada bastu","Freestyler","Bonfire"], tags:["Eurovision","Sweden","Finland","Humor"]},
 ];
 
 const events = [
@@ -13,8 +13,8 @@ const events = [
  {year:2021,type:"album",artist:"Erika Vikman",title:"Erika Vikman",country:"🇫🇮 Finland"},
  {year:2024,type:"eurovision",artist:"Marina Satti",title:"ZARI",country:"🇬🇷 Greece"},
  {year:2025,type:"eurovision",artist:"Erika Vikman",title:"ICH KOMME",country:"🇫🇮 Finland"},
- {year:2025,type:"eurovision",artist:"KAJ",title:"Bara bada bastu",country:"🇸🇪 Sweden"},
- {year:2026,type:"eurovision",artist:"Antigoni",title:"Eurovision appearance",country:"🇨🇾 Cyprus"}
+ {year:2025,type:"eurovision",artist:"KAJ",title:"Bara Bada Bastu",country:"🇸🇪 Sweden"},
+ {year:2026,type:"eurovision",artist:"Antigoni",title:"JALLA",country:"🇨🇾 Cyprus"}
 ];
 
 function App(){
