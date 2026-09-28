@@ -131,7 +131,7 @@ async function readBestTable(db, tables, candidates) {
       const pragma = await db.prepare(`PRAGMA table_info("${escapeIdent(table)}")`).all();
       const columns = (pragma.results || []).map(c => c.name);
       const score = scoreTable(columns, candidates);
-      if (score <= bestScore) continue;
+      if (score <= 0 || score <= bestScore) continue;
       const rows = await db.prepare(`SELECT * FROM "${escapeIdent(table)}" LIMIT 1000`).all();
       best = rows.results || [];
       bestScore = score;
